@@ -1,0 +1,137 @@
+space       
+    = " " 
+;
+digit       
+    = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
+;
+integer     
+    = digit, { digit } 
+;
+
+
+modifier 
+    = 'last' | 'this' | 'next'
+;
+week_day 
+    = 'monday' | "mon" | 'tuesday' | 'tues' |
+'wednesday' | 'weds' | 'thursday' | 'thurs' |'friday' 
+| 'fri' | 'saturday' | 'sat' | 'sunday' | 'sun'
+;
+
+month
+    = 'january' | 'jan' | 'february' | 'feb' | 'march' |
+'mar' | 'april' | 'apr' | 'may' | 'june' | 'jun' | 'jul' |
+'jul' | 'august' | 'aug' | 'september' | 'sep' | 'october' |
+'oct' | 'november' | 'nov' | 'december' | 'dec'
+;
+
+relative_day
+    = "yesterday" | "today" | "tomorrow"
+;
+season
+    = 'summer' | 'winter' | 'fall' | 'spring'
+;
+time_unit
+    = "second" | "minute" | "hour" | "day" | "week" | "month" | "year" | "decade";
+period_name
+    = "morning" | "afternoon" | "evening" | "night"
+;
+am_pm
+    = 'am' | 'a.m.' | 'am.' | 'pm' | 'p.m.' | 'pm.'
+;
+
+clock_time
+    = integer, [":", integer], [[space],am_pm]
+;
+
+link
+    = "to" | 'past'
+;
+phrase_time
+    = (integer | "half" | "quarter"), space, link, space, integer
+;
+
+relative_time
+    = integer, space, ("in the"|"at"), space, period_name
+;
+
+time_expr
+    = clock_time | phrase_time | relative_time | period_name | "noon" | "midnight" | "now"
+;
+
+abs_date
+    = week_day | month | season | relative_day
+;
+(*Next Month *)
+rel_unit
+    = ["next" | "last"], space, ("month" | "week" | "year")
+;
+
+rel_named
+    = modifier, space, (week_day | month | season)
+;
+
+inv_rel
+    = week_day, space, modifier, space, time_unit
+;
+
+comp_rel
+    = modifier, space, time_unit, space, week_day
+;
+
+date_expr
+    = abs_date | rel_unit | rel_named | inv_rel | comp_rel
+;
+
+date_time
+    = date_expr, [ space, [ "at", space ], time_expr ]
+;
+
+time_date
+    = time_expr, space, date_expr
+;
+
+date_time_expr 
+    = date_time | time_date
+;
+
+ordinal
+    = "1st" | "2nd" | "3rd" | ( digit, "th" )
+;
+
+direction
+    = "ago" | "hence"
+;
+rel_prep    
+    = "before" | "after" | "from"
+;
+quantity
+    = integer
+;
+
+
+simple_offset 
+    = quantity, space, time_unit, space, direction
+;
+future_offset
+    = "in", space, quantity, space, time_unit
+;
+
+shift_expr
+    = simple_offset | future_offset
+;
+
+anchor_point
+    = date_time_expr | shift_expr
+;
+relative_op
+   = quantity, space, time_unit, space, rel_prep
+;
+
+chained_expr
+    = relative_op, space, (chained_expr | anchor_point)
+;
+
+input
+    = shift_expr | date_time_expr | chained_expr
+;
